@@ -14,6 +14,8 @@ interface ILoString {
 
   String getFirst();
 
+  ILoString getRest();
+
   boolean isSorted();
 
   boolean isSortedHelp(String acc);
@@ -25,11 +27,11 @@ interface ILoString {
   ILoString reverse();
 
   ILoString reverseHelp(ILoString acc);
-  
+
   boolean isDoubledList();
-  
+
   boolean isPalindromeList();
-  
+
   boolean isPalindromeListHelp(ILoString acc);
 }
 
@@ -56,6 +58,11 @@ class MtLoString implements ILoString {
   @Override
   public String getFirst() {
     return "";
+  }
+
+  @Override
+  public ILoString getRest() {
+    return this;
   }
 
   @Override
@@ -102,6 +109,7 @@ class MtLoString implements ILoString {
   public boolean isPalindromeListHelp(ILoString acc) {
     return true;
   }
+
 }
 
 // to represent a nonempty list of Strings
@@ -146,6 +154,11 @@ class ConsLoString implements ILoString {
   @Override
   public String getFirst() {
     return this.first;
+  }
+
+  @Override
+  public ILoString getRest() {
+    return this.rest;
   }
 
   @Override
@@ -196,7 +209,7 @@ class ConsLoString implements ILoString {
   @Override
   public boolean isPalindromeListHelp(ILoString acc) {
     // TODO: implement
-//    return this.first.equals(acc.getFirst()) && this.rest.isPalindromeListHelp(acc.)
+    return this.first.equals(acc.getFirst()) && this.rest.isPalindromeListHelp(acc.getRest());
   }
 }
 
@@ -224,6 +237,13 @@ class ExamplesStrings {
   ILoString reverseInterleave1 = new ConsLoString("lamb.",
       new ConsLoString("a", new ConsLoString("Mary", new MtLoString())));
 
+  ILoString palindrome = new ConsLoString("Mary",
+      new ConsLoString("a", new ConsLoString("Mary", new MtLoString())));
+  ILoString palindrome2 = new ConsLoString("apple", new ConsLoString("banana",
+      new ConsLoString("cheese", new ConsLoString("banana", new ConsLoString("apple", new MtLoString())))));
+  ILoString palindrome3 = new ConsLoString("apple", new ConsLoString("banana",
+      new ConsLoString("banana", new ConsLoString("apple",new MtLoString()))));
+
   // test the method combine for the lists of Strings
   boolean testCombine(Tester t) {
     return t.checkExpect(this.mary.combine(), "Mary had a little lamb.");
@@ -248,9 +268,16 @@ class ExamplesStrings {
   boolean testMerge(Tester t) {
     return t.checkExpect(sorted1.merge(sorted2), mergeResult);
   }
-  
+
   boolean testReverse(Tester t) {
     return t.checkExpect(interleave1.reverse(), reverseInterleave1);
+  }
+
+  boolean testIsPalindromeList(Tester t) {
+    return t.checkExpect(palindrome.isPalindromeList(), true)
+        && t.checkExpect(palindrome2.isPalindromeList(), true)
+        && t.checkExpect(palindrome3.isPalindromeList(), true)
+        && t.checkExpect(reverseInterleave1.isPalindromeList(), false);
   }
 
 }
