@@ -14,6 +14,7 @@ interface IMobile {
   IMobile buildMobile(IMobile other, int verticalLength, int strutLength);
   
   int curWidth();
+  int curWidthHelp(int prevLength);
 }
 
 class Simple implements IMobile {
@@ -54,6 +55,11 @@ class Simple implements IMobile {
   @Override
   public int curWidth() {
     return (int) Math.ceil(this.weight / 10);
+  }
+
+  @Override
+  public int curWidthHelp(int prevLength) {
+    return this.curWidth();
   }
 }
 
@@ -98,7 +104,17 @@ class Complex implements IMobile {
 
   @Override
   public int curWidth() {
-    return this.leftside + this.rightside + left.curWidth() / 2 + right.curWidth() / 2;
+//    return this.leftside + this.rightside + left.curWidth() / 2 + right.curWidth() / 2;
+    return this.curWidthHelp(0);
+  }
+
+  @Override
+  public int curWidthHelp(int prevLength) {
+    if (this.leftside + this.left.curWidthHelp(this.leftside + this.rightside) >= prevLength) {
+      return this.leftside + this.left.curWidthHelp(this.leftside + this.rightside) + this.right.curWidthHelp(this.leftside + this.rightside);
+    } else {
+      return this.rightside + this.left.curWidthHelp(this.leftside + this.rightside) + this.right.curWidthHelp(this.leftside + this.rightside);
+    }
   }
 }
 
@@ -124,5 +140,9 @@ class ExamplesMobiles {
     return t.checkExpect(exampleComplex.isBalanced(), true)
         && t.checkExpect(exampleSimple.isBalanced(), true)
         && t.checkExpect(example3.isBalanced(), false);
+  }
+  
+  boolean testCurWidth(Tester t) {
+    return t.checkExpect(exampleComplex.curWidth(), 26);
   }
 }
