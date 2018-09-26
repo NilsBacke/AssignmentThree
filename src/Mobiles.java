@@ -10,10 +10,11 @@ interface IMobile {
   int totalHeight();
 
   boolean isBalanced();
-  
+
   IMobile buildMobile(IMobile other, int verticalLength, int strutLength);
-  
+
   int curWidth();
+
   int curWidthHelp(int prevLength);
 }
 
@@ -90,7 +91,8 @@ class Complex implements IMobile {
 
   @Override
   public boolean isBalanced() {
-    return left.totalWeight() * leftside == right.totalWeight() * rightside && left.isBalanced() && right.isBalanced();
+    return left.totalWeight() * leftside == right.totalWeight() * rightside && left.isBalanced()
+        && right.isBalanced();
   }
 
   @Override
@@ -111,9 +113,11 @@ class Complex implements IMobile {
   @Override
   public int curWidthHelp(int prevLength) {
     if (this.leftside + this.left.curWidthHelp(this.leftside + this.rightside) >= prevLength) {
-      return this.leftside + this.left.curWidthHelp(this.leftside + this.rightside) + this.right.curWidthHelp(this.leftside + this.rightside);
+      return this.leftside + this.left.curWidthHelp(this.leftside + this.rightside)
+          + this.right.curWidthHelp(this.leftside + this.rightside);
     } else {
-      return this.rightside + this.left.curWidthHelp(this.leftside + this.rightside) + this.right.curWidthHelp(this.leftside + this.rightside);
+      return this.rightside + this.left.curWidthHelp(this.leftside + this.rightside)
+          + this.right.curWidthHelp(this.leftside + this.rightside);
     }
   }
 }
@@ -128,6 +132,9 @@ class ExamplesMobiles {
           new Complex(2, 5, 3, new Simple(2, 36, new Color(255, 0, 0)), new Complex(1, 5, 5,
               new Simple(1, 5, new Color(0, 255, 0)), new Simple(2, 5, new Color(255, 0, 0))))));
 
+  IMobile exampleCurWidth = new Complex(1, 8, 1, new Simple(1, 12, new Color(255, 0, 0)),
+      new Simple(1, 36, new Color(255, 0, 0)));
+
   boolean testTotalWeight(Tester t) {
     return t.checkExpect(exampleComplex.totalWeight(), 144);
   }
@@ -141,8 +148,8 @@ class ExamplesMobiles {
         && t.checkExpect(exampleSimple.isBalanced(), true)
         && t.checkExpect(example3.isBalanced(), false);
   }
-  
+
   boolean testCurWidth(Tester t) {
-    return t.checkExpect(exampleComplex.curWidth(), 26);
+    return t.checkExpect(exampleComplex.curWidth(), 26) && t.checkExpect(exampleCurWidth.curWidth(), 12);
   }
 }
