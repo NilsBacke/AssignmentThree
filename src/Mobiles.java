@@ -1,6 +1,7 @@
 import tester.*; // The tester library
 import javalib.worldimages.*; // images, like RectangleImage or OverlayImages
 import javalib.funworld.*; // the abstract World class and the big-bang library
+import javalib.worldcanvas.*;
 import java.awt.Color; // general colors (as triples of red,green,blue values)
 // and predefined colors (Red, Green, Yellow, Blue, Black, White)
 
@@ -17,7 +18,8 @@ interface IMobile {
 
   int curWidthHelp(int prevLength);
 
-  //Produces the image of this mobile, completely flat and shown as a two-dimensional drawing
+  // Produces the image of this mobile, completely flat and shown as a
+  // two-dimensional drawing
   WorldImage drawMobile();
 }
 
@@ -72,18 +74,18 @@ class Simple implements IMobile {
     return this.curWidth();
   }
 
-  @Override 
+  @Override
   public WorldImage drawMobile() {
-    WorldImage simpleImage = new RectangleImage(this.weight/2, this.weight,
-        OutlineMode.SOLID, this.color);
+    WorldImage simpleImage = new RectangleImage(this.weight / 2, this.weight, OutlineMode.SOLID,
+        this.color);
 
-    WorldImage hieghtImage = new RectangleImage(2, this.length * 10,
-        OutlineMode.SOLID, Color.black);
+    WorldImage hieghtImage = new RectangleImage(2, this.length * 10, OutlineMode.SOLID,
+        Color.black);
 
-    OverlayOffsetImage simpleMobile = new OverlayOffsetImage(hieghtImage, 0, 
-        (this.length * 10) / 2, simpleImage);
+    OverlayOffsetImage simpleMobile = new OverlayOffsetImage(hieghtImage, 0, (this.length * 10) / 2,
+        simpleImage);
 
-    return simpleMobile;        
+    return simpleMobile;
   }
 }
 
@@ -129,7 +131,8 @@ class Complex implements IMobile {
 
   @Override
   public int curWidth() {
-    //    return this.leftside + this.rightside + left.curWidth() / 2 + right.curWidth() / 2;
+    // return this.leftside + this.rightside + left.curWidth() / 2 +
+    // right.curWidth() / 2;
     return this.curWidthHelp(0);
   }
 
@@ -137,36 +140,39 @@ class Complex implements IMobile {
   public int curWidthHelp(int prevLength) {
     if (this.leftside + this.left.curWidthHelp(this.leftside + this.rightside) >= prevLength) {
       return this.leftside + this.left.curWidthHelp(this.leftside + this.rightside)
-      + this.right.curWidthHelp(this.leftside + this.rightside);
+          + this.right.curWidthHelp(this.leftside + this.rightside);
     } else {
       return this.rightside + this.left.curWidthHelp(this.leftside + this.rightside)
-      + this.right.curWidthHelp(this.leftside + this.rightside);
+          + this.right.curWidthHelp(this.leftside + this.rightside);
     }
   }
-    public WorldImage drawMobile() {
 
-      RectangleImage heightImage = new RectangleImage(2, this.length * 10, OutlineMode.SOLID, Color.black);
+  public WorldImage drawMobile() {
 
-      RectangleImage left = new RectangleImage(this.leftside * 10, 2, OutlineMode.SOLID, Color.BLACK);
+    RectangleImage heightImage = new RectangleImage(2, this.length * 10, OutlineMode.SOLID,
+        Color.black);
 
-      RectangleImage right = new RectangleImage(this.rightside * 10, 2, OutlineMode.SOLID, Color.black);
+    RectangleImage left = new RectangleImage(this.leftside * 10, 2, OutlineMode.SOLID, Color.BLACK);
 
-      WorldImage mobileLeft = this.left.drawMobile()
-          .movePinhole(0, - (this.left.totalHeight() * 5));
+    RectangleImage right = new RectangleImage(this.rightside * 10, 2, OutlineMode.SOLID,
+        Color.black);
 
-      WorldImage mobileRight = this.right.drawMobile()
-          .movePinhole(0, - (this.right.totalHeight() * 5));
+    WorldImage mobileLeft = this.left.drawMobile().movePinhole(0, -(this.left.totalHeight() * 5));
 
-      WorldImage leftSide = new OverlayOffsetImage(left, - this.leftside * 5, 1, 
-          mobileLeft).movePinhole((this.leftside * 5), - this.left.totalHeight() * 5);
+    WorldImage mobileRight = this.right.drawMobile().movePinhole(0,
+        -(this.right.totalHeight() * 5));
 
-      WorldImage rightSide = new VisiblePinholeImage( new OverlayOffsetImage(right, this.rightside * 5, 1, 
-          mobileRight).movePinhole((this.leftside * -5), - this.right.totalHeight() * 5));
+    WorldImage leftSide = new OverlayOffsetImage(left, -this.leftside * 5, 1, mobileLeft)
+        .movePinhole((this.leftside * 5), -this.left.totalHeight() * 5);
 
-      WorldImage combined = new OverlayOffsetImage(leftSide, 0, 0, rightSide);
+    WorldImage rightSide = new VisiblePinholeImage(
+        new OverlayOffsetImage(right, this.rightside * 5, 1, mobileRight)
+            .movePinhole((this.leftside * -5), -this.right.totalHeight() * 5));
 
-     return new OverlayOffsetImage(heightImage, 0, this.length * 5, combined);
-    }
+    WorldImage combined = new OverlayOffsetImage(leftSide, 0, 0, rightSide);
+
+    return new OverlayOffsetImage(heightImage, 0, this.length * 5, combined);
+  }
 }
 
 class ExamplesMobiles {
@@ -197,6 +203,15 @@ class ExamplesMobiles {
   }
 
   boolean testCurWidth(Tester t) {
-    return t.checkExpect(exampleComplex.curWidth(), 21) && t.checkExpect(exampleCurWidth.curWidth(), 11) && t.checkExpect(exampleSimple.curWidth(), 2);
+    return t.checkExpect(exampleComplex.curWidth(), 21)
+        && t.checkExpect(exampleCurWidth.curWidth(), 11)
+        && t.checkExpect(exampleSimple.curWidth(), 2);
+  }
+  
+  boolean testDrawMobile(Tester t) {
+    WorldCanvas c = new WorldCanvas(500, 500);
+    WorldScene s = new WorldScene(500, 500);
+    return c.drawScene(s.placeImageXY(exampleComplex.drawMobile(), 250, 250))
+        && c.show();
   }
 }
