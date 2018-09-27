@@ -55,11 +55,17 @@ class Simple implements IMobile {
 
   @Override
   public int curWidth() {
-    return (int) Math.ceil(this.weight / 10);
+    if (((double) weight) / 10 % 1 == 0) {
+      return (int) Math.floor(weight / 10);
+    }
+    return (int) Math.floor(weight / 10 + 1);
   }
 
   @Override
   public int curWidthHelp(int prevLength) {
+    if (prevLength > 0) {
+      return this.curWidth() / 2;
+    }
     return this.curWidth();
   }
 }
@@ -150,6 +156,6 @@ class ExamplesMobiles {
   }
 
   boolean testCurWidth(Tester t) {
-    return t.checkExpect(exampleComplex.curWidth(), 26) && t.checkExpect(exampleCurWidth.curWidth(), 12);
+    return t.checkExpect(exampleComplex.curWidth(), 21) && t.checkExpect(exampleCurWidth.curWidth(), 11) && t.checkExpect(exampleSimple.curWidth(), 2);
   }
 }
